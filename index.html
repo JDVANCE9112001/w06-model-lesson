@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Song for Someone Who Matters and a Model Lesson</title>
+<style>
+/* ============================================================
+   A Song for Someone Who Matters and a Model Lesson
+   Single-file teaching page. No frameworks, no external requests.
+   ============================================================ */
+
+:root{
+  --paper:#fbf8f3;
+  --card:#ffffff;
+  --ink:#1d1a16;
+  --ink-2:#4a443c;
+  --ink-3:#857c70;
+  --line:#e5ddd1;
+  --line-2:#d3c7b6;
+
+  --llm:#c2740a;          /* amber  */
+  --multi:#0f7b6c;        /* teal   */
+  --diff:#6b46c1;         /* violet */
+  --accent:#c2740a;
+
+  --radius:16px;
+  --radius-sm:10px;
+  --shadow:0 1px 2px rgba(60,45,25,.05), 0 10px 30px -14px rgba(60,45,25,.22);
+  --serif: Georgia, "Times New Roman", "Songti SC", "SimSun", serif;
+  --sans: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", Roboto, sans-serif;
+  --mono: "Cascadia Code", Consolas, "SF Mono", monospace;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:var(--sans); font-size:17px; line-height:1.68;
+  -webkit-text-size-adjust:100%;
+}
+img,canvas,svg{max-width:100%}
+a{color:var(--multi)}
+
+/* ---------------- top bar ---------------- */
+.bar{
+  position:sticky; top:0; z-index:50;
+  display:flex; align-items:center; gap:14px;
+  padding:10px 22px;
+  background:rgba(251,248,243,.94);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.bar .mark{font-size:20px;line-height:1}
+.bar .ttl{font-family:var(--serif);font-size:15px;font-weight:700;letter-spacing:.01em}
+.bar .nav{margin-left:auto;display:flex;gap:4px;flex-wrap:wrap}
+.bar .nav a{
+  font-size:13px; text-decoration:none; color:var(--ink-2);
+  padding:6px 11px; border-radius:999px; white-space:nowrap;
+}
+.bar .nav a:hover{background:#f0e9dd;color:var(--ink)}
+.mode-btn{
+  font:inherit; font-size:13px; font-weight:700; cursor:pointer;
+  border:1.5px solid var(--line-2); background:#fff; color:var(--ink-2);
+  border-radius:999px; padding:7px 15px; white-space:nowrap;
+}
+.mode-btn[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+
+/* ---------------- layout ---------------- */
+main{max-width:1020px;margin:0 auto;padding:0 22px 80px}
+section{padding:54px 0 10px;scroll-margin-top:64px}
+.kicker{
+  display:inline-block; font-size:12.5px; font-weight:800; letter-spacing:.13em;
+  text-transform:uppercase; color:#fff; background:var(--accent);
+  border-radius:999px; padding:4px 13px;
+}
+.kicker.llm{background:var(--llm)} .kicker.multi{background:var(--multi)} .kicker.diff{background:var(--diff)}
+h2{font-family:var(--serif); font-size:36px; line-height:1.2; letter-spacing:-.01em; margin:12px 0 14px}
+h3{font-family:var(--serif); font-size:21px; margin:26px 0 8px}
+p{margin:0 0 14px; color:var(--ink-2)}
+strong{color:var(--ink)}
+.lede{font-size:19px; color:var(--ink-2); max-width:70ch}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px;box-shadow:var(--shadow)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.mono{font-family:var(--mono);font-size:13.5px}
+
+/* ---------------- hero ---------------- */
+.hero{padding:64px 0 10px}
+.hero h1{font-family:var(--serif); font-size:52px; line-height:1.08; letter-spacing:-.02em; margin:16px 0 18px; max-width:16ch}
+.hero .sub{font-size:20px; color:var(--ink-2); max-width:62ch}
+.hero-rule{height:5px;width:120px;border-radius:4px;margin:26px 0;
+  background:linear-gradient(90deg,var(--llm),var(--multi),var(--diff))}
+
+/* ---------------- three family chips ---------------- */
+.fams{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:26px}
+.fam{
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px 18px;border-top:5px solid var(--line-2);
+}
+.fam.a{border-top-color:var(--llm)} .fam.b{border-top-color:var(--multi)} .fam.c{border-top-color:var(--diff)}
+.fam h4{font-size:16px;margin-bottom:4px}
+.fam p{font-size:13.5px;margin:0;color:var(--ink-3)}
+
+/* ---------------- chinese summaries ---------------- */
+.zh{
+  background:#f4f1ea; border-left:4px solid var(--line-2);
+  border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+  padding:13px 17px; margin:20px 0 4px;
+  font-size:14.5px; color:var(--ink-2); line-height:1.75;
+}
+.zh b{color:var(--ink)}
+
+/* ---------------- demo shells ---------------- */
+.demo{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);margin:20px 0}
+.demo-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+.demo-head .tag{font-size:11.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.demo p.hint{font-size:13.5px;color:var(--ink-3);margin:2px 0 14px}
+.btn{
+  font:inherit;font-size:14px;font-weight:700;cursor:pointer;
+  border:1.5px solid var(--line-2);background:#fff;color:var(--ink);
+  border-radius:999px;padding:8px 18px;transition:.13s;
+}
+.btn:hover{border-color:var(--ink-3)}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.primary:hover{background:#000}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+/* ---------------- next-token demo ---------------- */
+.sentence{
+  font-family:var(--mono); font-size:21px; line-height:1.6;
+  background:#fdf9f1; border:2px dashed var(--llm); border-radius:12px;
+  padding:14px 18px; min-height:60px; word-break:break-word;
+}
+.sentence .tail{color:var(--llm);font-weight:700}
+.cands{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}
+.cand{
+  font:inherit;font-size:16px;font-weight:700;cursor:pointer;
+  background:#fff;border:2px solid var(--line-2);border-radius:999px;padding:8px 20px;
+}
+.cand:hover{border-color:var(--llm);background:#fff7ea}
+.probs{display:flex;flex-direction:column;gap:5px;margin-top:14px}
+.prow{display:flex;align-items:center;gap:10px;font-size:14px}
+.pw{flex:0 0 92px;text-align:right;font-weight:700;font-family:var(--mono)}
+.pbar{flex:1;height:12px;background:#f1ece2;border-radius:6px;overflow:hidden}
+.pbar i{display:block;height:100%;background:linear-gradient(90deg,#f0b34a,var(--llm));border-radius:6px;transition:width .2s}
+.pn{flex:0 0 46px;font-family:var(--mono);font-size:12.5px;color:var(--ink-3)}
+
+/* ---------------- canvas demos ---------------- */
+.canvas-wrap{position:relative;display:inline-block;border-radius:12px;overflow:hidden;border:1px solid var(--line-2);background:#111}
+canvas{display:block;width:100%;height:auto}
+.slider-row{display:flex;align-items:center;gap:14px;margin-top:14px;flex-wrap:wrap}
+input[type=range]{
+  -webkit-appearance:none; appearance:none; flex:1; min-width:180px; height:6px;
+  background:#e8e0d3; border-radius:4px; outline:none;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none; width:20px;height:20px;border-radius:50%;
+  background:var(--ink); border:3px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,.3); cursor:pointer;
+}
+input[type=range]::-moz-range-thumb{
+  width:16px;height:16px;border-radius:50%;background:var(--ink);border:3px solid #fff;cursor:pointer;
+}
+.readout{font-family:var(--mono);font-size:13px;color:var(--ink-3);min-width:110px}
+
+/* patch readout */
+.patch-out{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.pchip{
+  display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;
+  background:#f8f4ec;border:1px solid var(--line);border-radius:8px;padding:6px 10px;
+}
+.pchip .sw{width:16px;height:16px;border-radius:4px;border:1px solid rgba(0,0,0,.12)}
+
+/* ---------------- comparison table ---------------- */
+.tbl-wrap{overflow-x:auto;margin:18px 0;border:1px solid var(--line);border-radius:var(--radius);background:#fff}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:640px}
+th,td{text-align:left;padding:12px 15px;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{background:#f7f2e9;font-size:12.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
+tbody tr:last-child td{border-bottom:none}
+td:first-child{font-weight:700;color:var(--ink);white-space:nowrap}
+.th-llm{color:var(--llm)} .th-multi{color:var(--multi)} .th-diff{color:var(--diff)}
+
+/* ---------------- overlap cards ---------------- */
+.ovl{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+.ovl .card{padding:17px 19px}
+.ovl h4{font-size:15.5px;margin-bottom:6px}
+.ovl p{font-size:14px;margin:0}
+
+/* ---------------- quiz ---------------- */
+.q{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);margin-bottom:14px}
+.q h4{font-size:17px;margin-bottom:12px;display:flex;gap:10px;align-items:flex-start}
+.qn{flex:0 0 auto;background:var(--ink);color:#fff;font-family:var(--mono);font-size:12px;border-radius:6px;padding:3px 8px;margin-top:3px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{
+  font:inherit;font-size:15.5px;text-align:left;cursor:pointer;
+  background:#fbf8f3;border:2px solid var(--line);border-radius:10px;padding:11px 16px;
+}
+.opt:hover{border-color:var(--ink-3);background:#fff}
+.opt.right{background:#eefaf4;border-color:#128a5b;color:#0b5638;font-weight:700}
+.opt.wrong{background:#fdeeed;border-color:#c0392b;color:#7d2419}
+.fb{margin-top:11px;font-size:14.5px;padding:11px 15px;border-radius:10px}
+.fb.good{background:#eefaf4;color:#0b5638}
+.fb.bad{background:#fdf1ef;color:#7d2419}
+.score{text-align:center;font-size:17px;color:var(--ink-2);padding:14px}
+.score b{font-size:24px;color:var(--accent)}
+
+/* ---------------- song appendix ---------------- */
+.songcard{
+  background:linear-gradient(140deg,#fff7ec,#fdf1f6);
+  border:1px solid #f0dcc4; border-radius:var(--radius); padding:24px 26px;
+}
+.songcard dl{display:grid;grid-template-columns:150px 1fr;gap:10px 18px;font-size:15px}
+.songcard dt{color:var(--ink-3);font-weight:700}
+.songcard dd{margin:0;color:var(--ink-2)}
+.placeholder{background:#fff3cd;border-bottom:1px dashed #c9a227;padding:0 4px;border-radius:3px;color:#7a5c00;font-weight:700}
+
+/* ---------------- teach mode notes ---------------- */
+.teach-note{
+  display:none;
+  background:#eef4ff; border-left:4px solid #3b6fd4;
+  border-radius:0 10px 10px 0; padding:12px 16px; margin:16px 0;
+  font-size:14.5px; color:#243b63;
+}
+body.teach .teach-note{display:block}
+.teach-note b{color:#12294f}
+body.teach .hero h1{font-size:44px}
+
+/* ---------------- footer ---------------- */
+footer{margin-top:40px;padding:30px 0 10px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-3)}
+footer p{margin:0 0 8px;color:var(--ink-3)}
+footer .credits{display:grid;grid-template-columns:1fr 1fr;gap:8px 26px;margin-top:12px}
+footer a{color:var(--ink-2)}
+
+/* ---------------- responsive ---------------- */
+@media (max-width:860px){
+  .hero h1{font-size:38px}
+  h2{font-size:28px}
+  .grid2,.grid3,.fams,.ovl{grid-template-columns:1fr}
+  .bar .nav{display:none}
+  .songcard dl{grid-template-columns:1fr;gap:2px 0}
+  .songcard dt{margin-top:10px}
+}
+@media print{
+  .bar,.mode-btn{display:none}
+  section{page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<!-- ============================ TOP BAR ============================ -->
+<div class="bar">
+  <span class="mark" aria-hidden="true">♪</span>
+  <span class="ttl">A Song for Someone Who Matters and a Model Lesson</span>
+  <nav class="nav" aria-label="Sections">
+    <a href="#llm">LLMs</a>
+    <a href="#multimodal">Multimodal</a>
+    <a href="#diffusion">Diffusion</a>
+    <a href="#compare">Compare</a>
+    <a href="#quiz">Quiz</a>
+    <a href="#song">The song</a>
+  </nav>
+  <button class="mode-btn" id="modeBtn" aria-pressed="false" title="Show presenter notes for teaching a friend in person">
+    Teach mode
+  </button>
+</div>
+
+<main>
+
+<!-- ============================ HERO ============================ -->
+<section class="hero" id="top">
+  <span class="kicker">Model lesson · 3 families</span>
+  <h1>A Song for Someone Who Matters and a Model Lesson</h1>
+  <p class="sub">Two things are in this page: a song I made for someone who matters to me, and a short lesson about
+    the three kinds of AI models you keep hearing about. By the end you should be able to look at a task and say
+    <em>which family fits it, and why</em> — without hand-waving.</p>
+  <div class="hero-rule"></div>
+
+  <div class="fams">
+    <div class="fam a"><h4>LLM</h4><p>Reads and writes text. Predicts the next token.</p></div>
+    <div class="fam b"><h4>Multimodal model</h4><p>Takes in images, audio or video as well as text.</p></div>
+    <div class="fam c"><h4>Diffusion model</h4><p>Generates images, audio or video by undoing noise.</p></div>
+  </div>
+
+  <p style="margin-top:24px;font-size:14.5px;color:var(--ink-3)">
+    Reading alone? The demos work on their own. Teaching a friend in person? Turn on
+    <strong>Teach mode</strong> — it adds short cues in blue that tell you when to stop and ask a question.
+  </p>
+
+  <div class="teach-note">
+    <b>Opening (30 s):</b> Say the title out loud, then ask: “If a computer can write a song, what is it actually doing?”
+    Let them guess before you scroll. Don’t correct yet — collect the guess and come back to it at the end.
+  </div>
+</section>
+
+<!-- ============================ LLM ============================ -->
+<section id="llm">
+  <span class="kicker llm">Family 1</span>
+  <h2>LLMs: one token at a time</h2>
+  <p class="lede">A <strong>large language model</strong> is a network trained to answer one narrow question over and over:
+    <em>given this sequence of tokens, what token probably comes next?</em></p>
+
+  <h3>From text to numbers, and back</h3>
+  <p>Text is first cut into <strong>tokens</strong> — chunks of a few characters or a short word. Each token becomes an
+    ID, each ID becomes a <strong>vector</strong> (a list of numbers). Those vectors pass through many
+    <strong>transformer</strong> layers. Inside each layer, <strong>self-attention</strong> lets every position look at
+    the other positions and mix in their information; a small feed-forward network then transforms each position.
+    Stack 30–100 of these layers and the final vector is turned into a score for every token in the vocabulary —
+    that score distribution <em>is</em> the model's output.</p>
+
+  <h3>How it is trained</h3>
+  <p>Take a huge pile of text. Hide the next token, predict it, measure how wrong you were
+    (<strong>cross-entropy loss</strong>), nudge every weight slightly in the direction that reduces the error, repeat a
+    few trillion times. That is the whole training signal. Nobody hand-writes rules of grammar into it, and nobody
+    loads a database of facts — the facts end up <em>implicitly</em> encoded in the weights.</p>
+
+  <h3>How it generates</h3>
+  <p>Predict → pick a token → append it → predict again. This loop is called <strong>autoregressive</strong> generation.
+    The picking step is randomised a little: <strong>temperature</strong> scales the distribution, and
+    <strong>top-p</strong> cuts off the unlikely tail. Raise the temperature and you get more surprising words; drop it
+    to zero and the model becomes repetitive and flat.</p>
+
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Try it</span><h4 style="margin:0;font-size:17px">The next-token loop</h4></div>
+    <p class="hint">Click a candidate to append it. Watch the sentence grow one token at a time — that is the entire
+      mechanism. The percentages below are <em>illustrative</em>: a real model produces them with a softmax over its
+      ~50,000-token vocabulary.</p>
+    <div class="sentence" id="sent"></div>
+    <div class="cands" id="cands"></div>
+    <div class="probs" id="probs"></div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn" id="tokReset">Start over</button>
+      <span class="readout" id="tokStep"></span>
+    </div>
+    <p class="hint" id="tokNote" style="margin-top:12px"></p>
+  </div>
+
+  <h3>What an LLM is <em>not</em></h3>
+  <div class="grid2">
+    <div class="card">
+      <h4 style="font-size:16px;margin-bottom:6px">Not a search engine</h4>
+      <p style="font-size:14.5px;margin:0">There is no lookup happening. When a model gets a fact right, it is because
+        the pattern was learnable from the data; when it gets one wrong, it produces something equally fluent. That is
+        <strong>hallucination</strong>, and it comes from the mechanism, not from a bug.</p>
+    </div>
+    <div class="card">
+      <h4 style="font-size:16px;margin-bottom:6px">Not aware of “now”</h4>
+      <p style="font-size:14.5px;margin:0">Its knowledge stops at the training cut-off, and it has no senses. It can only
+        see what is placed in its <strong>context window</strong> — the tokens you or an app hand it this time.</p>
+    </div>
+  </div>
+
+  <div class="zh"><b>中文小结：</b>大语言模型（LLM）本质上是“预测下一个 token”的网络。文字被切成 token、变成向量，
+    穿过很多层 Transformer（注意力机制让每个位置参考其他位置），输出是词表上的概率分布。训练信号只有一个：预测下一个词、
+    算误差、调参数。它没有数据库、没有检索，事实是隐式地“长”在权重里的，所以也会流畅地编造。</div>
+
+  <div class="teach-note">
+    <b>Stop here.</b> Ask: “Why would this design make a confident wrong answer <em>inevitable</em>, not just possible?”
+    Then let them play with the next-token demo. Point out that every click is a full forward pass through the network.
+  </div>
+</section>
+
+<!-- ============================ MULTIMODAL ============================ -->
+<section id="multimodal">
+  <span class="kicker multi">Family 2</span>
+  <h2>Multimodal models: pictures become sequences too</h2>
+  <p class="lede">A <strong>multimodal model</strong> accepts more than one <strong>modality</strong> — text, images, audio,
+    video — instead of text alone. The trick is not that it “sees”. The trick is that it converts everything into
+    <em>the same kind of object a transformer already understands: a sequence of vectors.</em></p>
+
+  <h3>An image is not fed in as a picture</h3>
+  <p>The image is resized and cut into a grid of square <strong>patches</strong> (commonly 14×14 or 16×16 pixels). Each
+    patch is flattened into numbers and passed through a <strong>vision encoder</strong> — usually a Vision Transformer,
+    or a contrastively pre-trained encoder such as CLIP. Out comes one vector per patch. With position information added,
+    those vectors form a sequence that can be concatenated with text token vectors and fed into the same transformer.</p>
+  <p>Many practical systems use a second variation: keep a pre-trained vision encoder, and train a small
+    <strong>projection layer</strong> that maps its output into the language model's embedding space. The language model is
+    then frozen or lightly tuned. Either way, the picture has become <em>tokens</em>.</p>
+
+  <h3>Audio and video</h3>
+  <p><strong>Audio</strong> is turned into a mel-spectrogram or a stream of short frames; frames are then patched or
+    tokenised exactly like an image, or encoded by an audio encoder (Whisper-style) and projected. <strong>Video</strong>
+    is an <em>ordered</em> sequence of frames — order and timing carry real information, so models sample frames,
+    add temporal position cues, or use attention across time. That ordering is why “video” is harder than “a bag of
+    photos”.</p>
+
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Try it</span><h4 style="margin:0;font-size:17px">Image → patches → vectors</h4></div>
+    <p class="hint">Drag the slider to change the patch grid. The chips below show the first few patches reduced to a
+      colour triple. A real vision encoder produces a <em>rich</em> vector per patch — hundreds or thousands of numbers
+      carrying texture, edges and object parts. Collapsing each patch to its average colour just lets you see the step
+      “picture → grid of vectors” with your own eyes.</p>
+    <div class="canvas-wrap" style="width:320px"><canvas id="patchCanvas" width="640" height="640" aria-label="Procedural illustration of an image being divided into patches"></canvas></div>
+    <div class="slider-row">
+      <label for="patchSlider" style="font-size:14px;font-weight:700">Patch grid</label>
+      <input type="range" id="patchSlider" min="0" max="4" step="1" value="2" aria-describedby="patchReadout">
+      <span class="readout" id="patchReadout"></span>
+    </div>
+    <div class="patch-out" id="patchOut"></div>
+  </div>
+
+  <h3>What changes, and what does not</h3>
+  <p>The <em>reasoning</em> core is usually still a language model working over a sequence. What changed is the front
+    door: new encoders for new modalities, and a projection that puts them in a shared space. That is also why a
+    multimodal model can be bad at reading a chart while being excellent at describing a photo — the encoder and the
+    resolution decide what the language model ever gets to see.</p>
+
+  <div class="zh"><b>中文小结：</b>多模态模型不是“真的看见”，而是把图像切成小块（patch），每块经视觉编码器变成向量，
+    再投影到和文字 token 同一个向量空间里——于是图片也变成了“序列”。音频转频谱/帧后同样处理；视频则是有顺序的帧，
+    时间顺序本身携带信息。推理核心通常仍是语言模型，变的是入口的编码器。</div>
+
+  <div class="teach-note">
+    <b>Stop here.</b> Ask: “If the model only ever receives a grid of vectors, what could it plausibly miss?”
+    Good answers: small text, fine detail, anything cropped out by the resize, motion between sampled frames.
+  </div>
+</section>
+
+<!-- ============================ DIFFUSION ============================ -->
+<section id="diffusion">
+  <span class="kicker diff">Family 3</span>
+  <h2>Diffusion models: learning to undo noise</h2>
+  <p class="lede">A <strong>diffusion model</strong> generates media by starting from pure noise and <em>removing</em> noise
+    step by step. It is a completely different generation recipe from next-token prediction.</p>
+
+  <h3>The idea in two directions</h3>
+  <p><strong>Forward (fixed, no learning):</strong> take a real image and add a little Gaussian noise. Repeat a few
+    hundred or a thousand times. At the end you have static that contains no visible trace of the original — because the
+    process is designed to destroy information gradually and predictably.</p>
+  <p><strong>Reverse (this is what gets learned):</strong> train a network to look at a noisy image at step <em>t</em> and
+    estimate the noise that was added. The loss is simply the squared error between the true noise and the predicted
+    noise. Once that network is good, you can start from fresh noise and subtract its predictions step by step until an
+    image appears that was never in the training set.</p>
+
+  <h3>Where the text prompt enters</h3>
+  <p>The network is also given an encoding of the prompt. It is injected through <strong>cross-attention</strong>, so at
+    every denoising step the noise estimate is conditioned on what you asked for. <strong>Classifier-free
+    guidance</strong> sharpens this: run the prediction with and without the prompt and extrapolate away from the
+    unconditional result, trading diversity for prompt-adherence.</p>
+
+  <h3>Why “latent” diffusion matters</h3>
+  <p>Running diffusion directly on megapixel images is expensive. <strong>Latent diffusion</strong> first compresses the
+    image with a variational autoencoder into a small latent grid (think 64×64×4 instead of 1024×1024×3), runs the whole
+    denoising process there, and decodes back to pixels at the end. Almost every image generator you have used does the
+    hard work in that compressed space.</p>
+
+  <div class="demo">
+    <div class="demo-head"><span class="tag">Try it</span><h4 style="margin:0;font-size:17px">Denoising, step by step</h4></div>
+    <p class="hint"><strong>This is a simulation, not a real diffusion model.</strong> A target picture is blended with
+      noise; the slider stands in for “denoising step”. The real thing predicts noise with a network at every one of
+      ~20–1000 steps. What the simulation does show honestly is the <em>shape</em> of the process: coarse structure
+      appears first, fine detail last.</p>
+    <div class="canvas-wrap" style="width:320px"><canvas id="diffCanvas" width="640" height="640" aria-label="Simulated denoising from noise to a clean image"></canvas></div>
+    <div class="slider-row">
+      <label for="diffSlider" style="font-size:14px;font-weight:700">Step</label>
+      <input type="range" id="diffSlider" min="0" max="100" step="1" value="0">
+      <span class="readout" id="diffReadout"></span>
+      <button class="btn primary" id="diffRun">Run sampling</button>
+    </div>
+  </div>
+
+  <h3>What a diffusion model is <em>not</em></h3>
+  <p>It does not predict “the next pixel”. It refines a whole noisy tensor at once, and it produces the entire output in
+    one coordinated process. That is why diffusion is the natural fit for continuous media — and why it is not used to
+    write an essay.</p>
+
+  <div class="zh"><b>中文小结：</b>扩散模型学的是“去噪”。前向过程把真实图像一步步加噪到纯噪声（固定规则，不学习）；
+    反向过程训练一个网络在每一步预测并减去噪声，损失就是预测噪声和真实噪声的均方误差。文字提示通过交叉注意力注入，
+    再用无分类器引导增强贴合度。潜变量扩散先在 VAE 压缩出的小空间里做去噪，最后解码回像素。它不是“预测下一个像素”，
+    而是一次次整体精修。</div>
+
+  <div class="teach-note">
+    <b>Stop here.</b> Ask: “Why does the model need hundreds of small steps instead of one big jump?”
+    Then run the slider slowly together: coarse shapes at low steps, texture at high steps.
+  </div>
+</section>
+
+<!-- ============================ COMPARE ============================ -->
+<section id="compare">
+  <span class="kicker">Putting it together</span>
+  <h2>Same or different?</h2>
+  <p class="lede">The three families are best separated by <strong>what they take in</strong>, <strong>what they put
+    out</strong>, and <strong>how they generate</strong> — not by which product name they appear under.</p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>&nbsp;</th><th class="th-llm">LLM</th><th class="th-multi">Multimodal</th><th class="th-diff">Diffusion</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Input</td><td>Text (tokens)</td><td>Text + images / audio / video</td><td>A prompt + pure noise</td></tr>
+        <tr><td>Output</td><td>Text, one token at a time</td><td>Usually text; sometimes images or audio</td><td>Pixels, audio or video frames</td></tr>
+        <tr><td>Generation recipe</td><td>Autoregressive: predict → append → repeat</td><td>Same sequence model, after encoding other modalities into tokens</td><td>Iterative denoising: predict noise → subtract → repeat</td></tr>
+        <tr><td>Training signal</td><td>Next-token cross-entropy</td><td>Next-token loss + alignment of modalities</td><td>Mean squared error on predicted noise</td></tr>
+        <tr><td>Fits best</td><td>Writing, summarising, reasoning over text</td><td>Anything that mixes a picture with words</td><td>Making an image, a voice, a video</td></tr>
+        <tr><td>Typical failure</td><td>Fluent, confident, wrong</td><td>Misses fine detail the encoder discarded</td><td>Wrong hands, wrong text, drifting structure</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Where the boundaries blur — this is the part worth remembering</h3>
+  <div class="ovl">
+    <div class="card">
+      <h4>A multimodal model usually <em>contains</em> an LLM</h4>
+      <p>“Multimodal” describes the front door, not a separate species. Strip the encoders off and what is left is a
+        language model reading a longer sequence.</p>
+    </div>
+    <div class="card">
+      <h4>Diffusion is not only for images</h4>
+      <p>The same noising/denoising recipe works for audio waveforms and video frames. “Diffusion” names a
+        <em>generation method</em>, not a medium.</p>
+    </div>
+    <div class="card">
+      <h4>Some image generators are autoregressive</h4>
+      <p>If an image is tokenised into discrete codes, it can be generated with next-token prediction like text. So
+        “image generator” does not automatically mean “diffusion”.</p>
+    </div>
+    <div class="card">
+      <h4>Real products are pipelines</h4>
+      <p>A single app may have an LLM rewrite your prompt, then call a diffusion model to render it, then call another
+        model to check the result. Three families, one button.</p>
+    </div>
+  </div>
+
+  <p style="margin-top:18px;font-size:14.5px;color:var(--ink-3)">
+    And the honest caveat: <strong>do not assume a specific product works the way this page describes.</strong>
+    These are the three mainstream recipes. Companies mix them, and the internals of named products are often not
+    public. When it matters, check the technical report — not the marketing page.
+  </p>
+
+  <div class="zh"><b>中文小结：</b>区分三者要看清“输入 / 输出 / 生成方式”，而不是看产品名。LLM 是自回归地一个 token 一个
+    token 往外吐；多模态通常就是“编码器 + LLM”，把别的模态也变成 token 序列；扩散模型是整张图反复去噪。边界会模糊：
+    多模态模型里往往装着一个 LLM、扩散也能做音频视频、有些图像生成其实是自回归的、真实产品常常是三者的流水线。
+    <b>不要假设某个具体产品的内部就是这一页描述的样子。</b></div>
+
+  <div class="teach-note">
+    <b>Check for understanding.</b> Give them a task — “summarise this page into three bullets”, “describe this photo”,
+    “make a poster” — and ask which family is the <em>core</em> and which are helpers. There is often more than one
+    defensible answer; make them justify it.
+  </div>
+</section>
+
+<!-- ============================ QUIZ ============================ -->
+<section id="quiz">
+  <span class="kicker">Check yourself</span>
+  <h2>Three questions</h2>
+  <p class="lede">Each answer explains itself. Wrong answers are more useful than right ones — read the explanation anyway.</p>
+
+  <div class="q" data-q="1">
+    <h4><span class="qn">Q1</span>You want to feed in a 40-page text report and ask follow-up questions about what it says. Which family is the core of what you need?</h4>
+    <div class="opts">
+      <button class="opt" data-ok="0">A diffusion model, because 40 pages is a lot of content</button>
+      <button class="opt" data-ok="1">An LLM, because the input and the output are both text</button>
+      <button class="opt" data-ok="0">A multimodal model, because documents contain images</button>
+    </div>
+  </div>
+
+  <div class="q" data-q="2">
+    <h4><span class="qn">Q2</span>Before a multimodal model can reason about a photo, what has to happen to that photo?</h4>
+    <div class="opts">
+      <button class="opt" data-ok="0">It is stored as a file path and looked up when needed</button>
+      <button class="opt" data-ok="1">It is split into patches, each patch becomes a vector, and the vectors become a sequence</button>
+      <button class="opt" data-ok="0">It is converted into a text description by a separate captioning model first</button>
+    </div>
+  </div>
+
+  <div class="q" data-q="3">
+    <h4><span class="qn">Q3</span>During sampling, what does a diffusion model do at each step?</h4>
+    <div class="opts">
+      <button class="opt" data-ok="0">Picks the most likely next pixel and appends it</button>
+      <button class="opt" data-ok="0">Looks up the closest matching image it saw during training</button>
+      <button class="opt" data-ok="1">Predicts the noise in the current image and subtracts it, gradually denoising</button>
+    </div>
+  </div>
+
+  <div class="score" id="quizScore"></div>
+</section>
+
+<!-- ============================ SONG APPENDIX ============================ -->
+<section id="song">
+  <span class="kicker">Appendix</span>
+  <h2>How I Made This Song</h2>
+  <p class="lede">A short, honest record of the other half of this assignment.</p>
+
+  <div class="songcard">
+    <dl>
+      <dt>Song</dt>
+      <dd><strong>Half Light</strong></dd>
+
+      <dt>Dedicated to</dt>
+      <dd><span class="placeholder">[TO FILL — relation of the person, e.g. “a close friend”]</span></dd>
+
+      <dt>Why this song</dt>
+      <dd><span class="placeholder">[TO FILL — the message, in one or two sentences]</span></dd>
+
+      <dt>Lyrics</dt>
+      <dd><span class="placeholder">[TO FILL — written by me / co-written with AI / fully AI-generated]</span></dd>
+
+      <dt>Music generation</dt>
+      <dd>即梦 (Jimeng) — text-to-music, generated 2026-11-05</dd>
+
+      <dt>Cover art</dt>
+      <dd>AI-generated cover, produced for the video with AI assistance</dd>
+
+      <dt>What I did</dt>
+      <dd>Wrote the direction for the song, chose among generated takes, then assembled the audio and cover into a
+        single <span class="mono">.mp4</span> so the file stands on its own.</dd>
+    </dl>
+  </div>
+
+  <p style="margin-top:16px;font-size:14px;color:var(--ink-3)">
+    <strong>Why a song at all?</strong> Because “generate media” is exactly the thing the three model families are being
+    asked to do. The song is a concrete artefact; the lesson is the explanation of the machinery that made it.
+  </p>
+
+  <div class="teach-note">
+    <b>Closing (2 min).</b> Play 20 seconds of the song, then ask them to name which family made the music, which made
+    the cover, and which wrote this page. If they can answer all three and say <em>why</em>, the lesson landed.
+  </div>
+</section>
+
+</main>
+
+<!-- ============================ FOOTER ============================ -->
+<footer>
+  <div style="max-width:1020px;margin:0 auto;padding:0 22px">
+    <p><strong>Production notes (制作信息)</strong></p>
+    <div class="credits">
+      <p>Page text and code: written with AI assistance (an AI coding agent) from my own outline and requirements. Not
+        copied from any online source.</p>
+      <p>Cover art and music: AI-generated (即梦 / Jimeng for the music; AI-generated cover art).</p>
+      <p>Interactive demos: the next-token percentages and the denoising animation are <em>illustrations</em> of the
+        mechanism, not measurements of any real model. This is stated in each demo.</p>
+      <p>Sources for the technical descriptions: the original papers on transformers, vision transformers, CLIP,
+        latent diffusion and denoising diffusion — see the report for the full list.</p>
+    </div>
+    <p style="margin-top:14px">A Song for Someone Who Matters and a Model Lesson · teaching page for Week 06.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+var $=function(id){return document.getElementById(id);};
+
+/* ================= teach mode ================= */
+var modeBtn=$("modeBtn");
+modeBtn.addEventListener("click",function(){
+  var on=document.body.classList.toggle("teach");
+  modeBtn.setAttribute("aria-pressed",on?"true":"false");
+  modeBtn.textContent=on?"Teach mode: ON":"Teach mode";
+});
+
+/* ================= demo 1: next token ================= */
+/* Hand-set probabilities. These illustrate the shape of a distribution;
+   they are NOT measurements from any model. */
+var STEPS=[
+  {pre:"The song was written in a small room with", opts:[
+    {w:"only",p:0.34},{w:"just",p:0.27},{w:"a",p:0.21},{w:"nothing",p:0.11},{w:"one",p:0.07}]},
+  {pre:"a", opts:[
+    {w:"guitar",p:0.38},{w:"lamp",p:0.24},{w:"piano",p:0.19},{w:"window",p:0.12},{w:"microphone",p:0.07}]},
+  {pre:"and a", opts:[
+    {w:"lamp",p:0.41},{w:"notebook",p:0.23},{w:"window",p:0.18},{w:"cup",p:0.12},{w:"chair",p:0.06}]},
+  {pre:"and a lamp", opts:[
+    {w:",",p:0.52},{w:".",p:0.31},{w:"that",p:0.11},{w:"beside",p:0.06}]},
+  {pre:"and a lamp,", opts:[
+    {w:"and",p:0.36},{w:"because",p:0.22},{w:"waiting",p:0.20},{w:"while",p:0.13},{w:"so",p:0.09}]}
+];
+var tokIdx=0, tokChosen=[];
+function renderTok(){
+  var s=$("sent"), c=$("cands"), pr=$("probs");
+  var base=STEPS[0].pre;
+  var text=base;
+  tokChosen.forEach(function(w){
+    text += (/^[,.!?]$/.test(w) ? "" : " ") + w;
+  });
+  s.innerHTML="";
+  s.appendChild(document.createTextNode(text));
+  if(tokIdx<STEPS.length){
+    var tail=document.createElement("span"); tail.className="tail"; tail.textContent=" ▁"; s.appendChild(tail);
+  }
+  c.innerHTML=""; pr.innerHTML="";
+  if(tokIdx>=STEPS.length){
+    $("tokStep").textContent="5 tokens generated";
+    $("tokNote").innerHTML="That is the whole model: five forward passes, five choices. A real answer is hundreds of these, each one conditioning on everything before it.";
+    $("tokReset").disabled=false;
+    return;
+  }
+  var step=STEPS[tokIdx];
+  step.opts.forEach(function(o){
+    var b=document.createElement("button");
+    b.className="cand"; b.type="button"; b.textContent=o.w;
+    b.addEventListener("click",function(){ tokChosen.push(o.w); tokIdx++; renderTok(); });
+    c.appendChild(b);
+    var row=document.createElement("div"); row.className="prow";
+    row.innerHTML='<span class="pw">'+o.w.replace(/</g,"&lt;")+'</span>'+
+      '<span class="pbar"><i style="width:'+Math.round(o.p*100)+'%"></i></span>'+
+      '<span class="pn">'+Math.round(o.p*100)+'%</span>';
+    pr.appendChild(row);
+  });
+  $("tokStep").textContent="step "+(tokIdx+1)+" of 5";
+  $("tokNote").textContent="";
+}
+$("tokReset").addEventListener("click",function(){ tokIdx=0; tokChosen=[]; renderTok(); });
+renderTok();
+
+/* ================= procedural target image ================= */
+/* Drawn once; used by both the patch demo and the diffusion demo. */
+function drawTarget(ctx,S){
+  var g=ctx.createLinearGradient(0,0,0,S);
+  g.addColorStop(0,"#1b2a4a"); g.addColorStop(0.42,"#7a5a86");
+  g.addColorStop(0.62,"#e08a5a"); g.addColorStop(1,"#f6c98a");
+  ctx.fillStyle=g; ctx.fillRect(0,0,S,S);
+  /* sun */
+  ctx.beginPath(); ctx.arc(S*0.66,S*0.62,S*0.11,0,Math.PI*2);
+  ctx.fillStyle="#ffe9b0"; ctx.fill();
+  ctx.beginPath(); ctx.arc(S*0.66,S*0.62,S*0.15,0,Math.PI*2);
+  ctx.fillStyle="rgba(255,233,176,.25)"; ctx.fill();
+  /* hills */
+  function hill(y,amp,col){
+    ctx.beginPath(); ctx.moveTo(0,S);
+    for(var x=0;x<=S;x+=4){
+      var yy=y+Math.sin(x/S*Math.PI*2.2)*amp+Math.sin(x/S*Math.PI*5.1)*amp*0.35;
+      ctx.lineTo(x,yy);
+    }
+    ctx.lineTo(S,S); ctx.closePath(); ctx.fillStyle=col; ctx.fill();
+  }
+  hill(S*0.74,S*0.045,"#6b4a6b");
+  hill(S*0.83,S*0.05,"#3d2f52");
+  hill(S*0.93,S*0.035,"#211a33");
+  /* a thin horizon glow */
+  ctx.fillStyle="rgba(255,255,255,.10)"; ctx.fillRect(0,S*0.60,S,S*0.006);
+}
+
+/* ================= demo 2: patches ================= */
+var pc=$("patchCanvas"), pctx=pc.getContext("2d");
+var target=document.createElement("canvas"); target.width=target.height=640;
+drawTarget(target.getContext("2d"),640);
+
+var GRIDS=[1,2,4,8,16];
+function renderPatches(){
+  var gi=parseInt($("patchSlider").value,10), n=GRIDS[gi];
+  var S=pc.width, cell=S/n;
+  pctx.drawImage(target,0,0);
+  /* draw grid */
+  pctx.strokeStyle="rgba(255,255,255,.85)"; pctx.lineWidth=Math.max(1.5,3/n);
+  for(var i=0;i<=n;i++){
+    pctx.beginPath(); pctx.moveTo(i*cell,0); pctx.lineTo(i*cell,S); pctx.stroke();
+    pctx.beginPath(); pctx.moveTo(0,i*cell); pctx.lineTo(S,i*cell); pctx.stroke();
+  }
+  $("patchReadout").textContent=n+"×"+n+" = "+(n*n)+" patches";
+  /* sample average colour of the first few patches */
+  var out=$("patchOut"); out.innerHTML="";
+  var shown=Math.min(6,n*n);
+  for(var k=0;k<shown;k++){
+    var r=Math.floor(k/n), c=k%n;
+    var d=pctx.getImageData(Math.floor(c*cell),Math.floor(r*cell),Math.max(1,Math.floor(cell)),Math.max(1,Math.floor(cell))).data;
+    var sr=0,sg=0,sb=0,cnt=0;
+    for(var p=0;p<d.length;p+=4*17){ sr+=d[p];sg+=d[p+1];sb+=d[p+2];cnt++; }
+    sr=Math.round(sr/cnt);sg=Math.round(sg/cnt);sb=Math.round(sb/cnt);
+    var chip=document.createElement("div"); chip.className="pchip";
+    chip.innerHTML='<span class="sw" style="background:rgb('+sr+','+sg+','+sb+')"></span>'+
+      'patch '+k+' → ['+sr+', '+sg+', '+sb+']';
+    out.appendChild(chip);
+  }
+  if(n*n>shown){
+    var more=document.createElement("div"); more.className="pchip";
+    more.style.background="transparent"; more.style.border="none";
+    more.textContent="… "+(n*n-shown)+" more";
+    out.appendChild(more);
+  }
+}
+$("patchSlider").addEventListener("input",renderPatches);
+renderPatches();
+
+/* ================= demo 3: diffusion ================= */
+var dc=$("diffCanvas"), dctx=dc.getContext("2d");
+var noiseBuf=null;
+function buildNoise(S){
+  var c=document.createElement("canvas"); c.width=c.height=S;
+  var x=c.getContext("2d"), img=x.createImageData(S,S);
+  for(var i=0;i<img.data.length;i+=4){
+    var v=Math.random()*255;
+    img.data[i]=img.data[i+1]=img.data[i+2]=v; img.data[i+3]=255;
+  }
+  x.putImageData(img,0,0);
+  return c;
+}
+noiseBuf=buildNoise(640);
+function renderDiffusion(v){
+  var S=dc.width; v=Math.max(0,Math.min(100,v));
+  var t=v/100;                      /* 0 = pure noise, 1 = clean */
+  dctx.globalAlpha=1;
+  dctx.drawImage(target,0,0);
+  dctx.globalAlpha=1-t;
+  dctx.drawImage(noiseBuf,0,0);
+  dctx.globalAlpha=1;
+  var step=Math.round(t*29)+1;
+  $("diffReadout").textContent="denoise "+v+"%  (≈ step "+step+"/30)";
+}
+$("diffSlider").addEventListener("input",function(){ renderDiffusion(parseInt(this.value,10)); });
+renderDiffusion(0);
+
+var running=false;
+$("diffRun").addEventListener("click",function(){
+  if(running) return; running=true;
+  var el=$("diffSlider"); el.value=0; renderDiffusion(0);
+  var v=0, t0=performance.now();
+  function tick(now){
+    v=Math.min(100,(now-t0)/2600*100);
+    el.value=Math.round(v); renderDiffusion(v);
+    if(v<100){ requestAnimationFrame(tick); } else { running=false; }
+  }
+  requestAnimationFrame(tick);
+});
+
+/* ================= quiz ================= */
+var answered={}, correct=0, total=3;
+document.querySelectorAll(".q").forEach(function(q){
+  var opts=q.querySelectorAll(".opt");
+  opts.forEach(function(btn){
+    btn.addEventListener("click",function(){
+      if(q.dataset.done) return;
+      q.dataset.done="1";
+      var ok=btn.dataset.ok==="1";
+      btn.classList.add(ok?"right":"wrong");
+      if(!ok){
+        opts.forEach(function(b){ if(b.dataset.ok==="1") b.classList.add("right"); });
+      }
+      answered[q.dataset.q]=true;
+      if(ok) correct++;
+      var fb=document.createElement("div");
+      fb.className="fb "+(ok?"good":"bad");
+      var why={
+        "1":"Text in, text out is the defining shape of an LLM task. It does not matter how long the input is — length is a context-window question, not a model-family question. If the report also contains charts, you would <em>add</em> a multimodal encoder, but the reasoning core is still the LLM.",
+        "2":"Patches → vectors → sequence. That conversion is what makes an image something a transformer can consume. A separate captioning model is one <em>possible</em> pipeline, but the mainstream multimodal design does the encoding inside the same model, which preserves far more detail than a caption does.",
+        "3":"It predicts the noise currently in the tensor and subtracts it, many times. There is no “next pixel” in diffusion, and nothing is looked up from training data — that last answer is the classic misconception."
+      }[q.dataset.q];
+      fb.innerHTML=(ok?"<strong>Correct. </strong>":"<strong>Not quite. </strong>")+why;
+      q.appendChild(fb);
+      if(Object.keys(answered).length===total){
+        $("quizScore").innerHTML="<b>"+correct+" / "+total+"</b> correct"+
+          (correct===total?" — you can now explain all three families to someone else.":" — read the explanations, then try the last one again.");
+      }
+    });
+  });
+});
+})();
+</script>
+</body>
+</html>
